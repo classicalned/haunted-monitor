@@ -1,7 +1,7 @@
 /* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
 :root{
   /* global letter styling */
-  --letter-vw: 4.5vw;       /* size of each magnet (width) */
+  --letter-vw: 3.9vw;       /* size of each magnet (width) */
   --gap: .1vw;              /* spacing between letters */
   --spacer-vw: .9vw;       /* width of the “space” block */
 
@@ -25,9 +25,9 @@
   --scramble-blur:       0 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .60;   /* <1 darker, >1 brighter */
+  --magnet-brightness: .40;   /* <1 darker, >1 brighter */
   --magnet-contrast:   1.;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .70;   /* 0 transparent → 1 fully visible */
+  --magnet-opacity:    .80;   /* 0 transparent → 1 fully visible */
   --magnet-blur:       3 px;   /* add soft blur if desired */
 
   /* directional drop shadow (light from the right ⇒ shadow to the left) */
