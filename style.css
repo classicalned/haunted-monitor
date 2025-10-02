@@ -22,7 +22,7 @@
   --scramble-brightness: 0.53; /* < 1 darker, > 1 brighter */
   --scramble-contrast:   .79; /* slight contrast lift */
   --scramble-opacity:    1;    /* jumble visibility when shown */
-  --scramble-blur:       0 px;  /* optional feather if you want */
+  --scramble-blur:       2 px;  /* optional feather if you want */
 }
 
 /* ----------------------------------------------------------------------- */
