@@ -19,7 +19,7 @@
   --grain-opacity: 0.75;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.56; /* < 1 darker, > 1 brighter */
+  --scramble-brightness: 0.30; /* < 1 darker, > 1 brighter */
   --scramble-contrast:   .85;  /* slight contrast lift */
   --scramble-opacity:    .70;  /* jumble visibility when shown */
 
