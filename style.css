@@ -1,28 +1,28 @@
 /* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
 :root{
   /* global letter styling */
-  --letter-vw: 3.2vw;      /* letter width */
-  --gap: .5vw;             /* spacing between letters */
-  --spacer-vw: 2vw;        /* width of the space block */
+  --letter-vw: 5.2vw;          /* size of each magnet (width) */
+  --gap: 1.1vw;                /* spacing between letters */
+  --spacer-vw: 2.0vw;          /* width of the “space” block */
 
-  /* vertical positions (vh or %) */
-  --word-top:  41vh;
-  --of-top:    50vh;
-  --suit-top:  58vh;
+  /* vertical positions (percent of screen height) */
+  --word-top: 58%;
+  --of-top:   66%;
+  --suit-top: 74%;
 
-  /* horizontal offsets (negative = left, positive = right) */
-  --word-dx:  -6vw;
-  --of-dx:    -4vw;
-  --suit-dx:  -2vw;
+  /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
+  --word-dx:  0vw;
+  --of-dx:    0vw;
+  --suit-dx:  0vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.78;
-  --scramble-contrast:   1.05;
-  --scramble-opacity:    1;
-  --scramble-blur:       1px;
+  --scramble-brightness: 0.78; /* < 1 darker, > 1 brighter */
+  --scramble-contrast:   1.05; /* slight contrast lift */
+  --scramble-opacity:    1;    /* jumble visibility when shown */
+  --scramble-blur:       0px;  /* optional feather if you want */
 }
 
 /* ----------------------------------------------------------------------- */
@@ -47,22 +47,18 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
 #grain    { z-index:25; mix-blend-mode:screen; opacity:var(--grain-opacity); pointer-events:none; }
 #glitch   { z-index:30; display:none; pointer-events:none; }
 
-/* ===== Letter rows sit under grain, above jumble ===== */
-/* IMPORTANT: no left:50% and no translateX(-50%) here */
+/* letter rows sit under grain, above jumble */
 .magnet-line{
   position:absolute; z-index:22;
-  left:0; right:0;           /* full row width */
-  display:flex;
-  justify-content:center;    /* start centered */
-  align-items:flex-end;
-  gap: var(--gap);
+  left:50%; transform: translateX(-50%);
+  display:flex; align-items:flex-end; gap: var(--gap);
   pointer-events:none;
 }
 
-/* Vertical placement + per-row horizontal offset (dx) */
-#wordLayer{ top: var(--word-top); transform: translateX(var(--word-dx)); }
-#ofLayer  { top: var(--of-top);   transform: translateX(var(--of-dx)); }
-#suitLayer{ top: var(--suit-top); transform: translateX(var(--suit-dx)); }
+/* vertical placement */
+#wordLayer{ top: var(--word-top); left: calc(50% + var(--word-dx)); }
+#ofLayer  { top: var(--of-top);   left: calc(50% + var(--of-dx)); }
+#suitLayer{ top: var(--suit-top); left: calc(50% + var(--suit-dx)); }
 
 /* letter image + spacer */
 .magnet { width: var(--letter-vw); max-width: 72px; user-select:none; image-rendering:auto; }
