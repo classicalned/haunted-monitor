@@ -83,11 +83,14 @@
 
     const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
 
+    // WORD goes to the *suit* (bottom) line now
     function renderWord(text){
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addLetter(wordLayer, ch);
+      for (const ch of (text||'').toUpperCase()) addLetter(suitLayer, ch);
       setScramble(false);
     }
+
+    // CARD stays the same (value → top, "OF" → middle, suit → bottom)
     function renderCard(value, suit){
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
       for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
