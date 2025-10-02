@@ -27,107 +27,123 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+  import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBrePZ1A0Kux-5kI9IBxWBkFQzaOBnBaA8",
-      authDomain: "haunted-monitor.firebaseapp.com",
-      databaseURL: "https://haunted-monitor-default-rtdb.firebaseio.com",
-      projectId: "haunted-monitor",
-      storageBucket: "haunted-monitor.firebasestorage.app",
-      messagingSenderId: "469649621539",
-      appId: "1:469649621539:web:0200310ee852d37e2de796"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrePZ1A0Kux-5kI9IBxWBkFQzaOBnBaA8",
+    authDomain: "haunted-monitor.firebaseapp.com",
+    databaseURL: "https://haunted-monitor-default-rtdb.firebaseio.com",
+    projectId: "haunted-monitor",
+    storageBucket: "haunted-monitor.firebasestorage.app",
+    messagingSenderId: "469649621539",
+    appId: "1:469649621539:web:0200310ee852d37e2de796"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
 
-    const wordLayer = document.getElementById('wordLayer');
-    const ofLayer   = document.getElementById('ofLayer');
-    const suitLayer = document.getElementById('suitLayer');
-    const scrambled = document.getElementById('scrambled');
-    const bg        = document.getElementById('bg');
-    const grain     = document.getElementById('grain');
-    const glitch    = document.getElementById('glitch');
+  const wordLayer = document.getElementById('wordLayer');
+  const ofLayer   = document.getElementById('ofLayer');
+  const suitLayer = document.getElementById('suitLayer');
+  const scrambled = document.getElementById('scrambled');
+  const bg        = document.getElementById('bg');
+  const grain     = document.getElementById('grain');
+  const glitch    = document.getElementById('glitch');
 
-    [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
+  // Hide missing optional media gracefully
+  [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
 
-    function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
+  // --- Make sure videos actually auto-play (Safari/iOS is picky) ---
+  function ensurePlays(v){
+    if (!v) return;
+    v.muted = true;          // required for auto-play on mobile
+    v.playsInline = true;    // iOS: avoid full-screen takeover
+    const tryPlay = () => v.play().catch(()=>{});
+    tryPlay();                                // try now
+    v.addEventListener('loadeddata', tryPlay, { once:true }); // try when ready
+    // If the browser still refuses, try again on first tap
+    document.addEventListener('click',      tryPlay, { once:true });
+    document.addEventListener('touchstart', tryPlay, { once:true });
+  }
+  ensurePlays(bg);
+  ensurePlays(grain);
 
-    function addLetter(layer, ch){
-      if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
-      const up = ch.toUpperCase();
-      if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+  function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
 
-      const img = document.createElement('img');
-      img.src = `letters/${up}.png`;
-      img.className = 'magnet';
-      img.draggable = false;
+  function addLetter(layer, ch){
+    if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+    const up = ch.toUpperCase();
+    if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
 
-      // tiny organic wobble
-      const rot = (Math.random()*4 - 2);
-      const jitter = (Math.random()*2 - 1);
-      img.style.transform = `rotate(${rot}deg)`;
-      img.style.marginTop = `${jitter}px`;
-      layer.appendChild(img);
+    const img = document.createElement('img');
+    img.src = `letters/${up}.png`;
+    img.className = 'magnet';
+    img.draggable = false;
+
+    // tiny organic wobble
+    const rot = (Math.random()*4 - 2);
+    const jitter = (Math.random()*2 - 1);
+    img.style.transform = `rotate(${rot}deg)`;
+    img.style.marginTop = `${jitter}px`;
+    layer.appendChild(img);
+  }
+
+  const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
+
+  function renderWord(text){
+    clear(wordLayer); clear(ofLayer); clear(suitLayer);
+    for (const ch of (text||'').toUpperCase()) addLetter(wordLayer, ch);
+    setScramble(false);
+  }
+  function renderCard(value, suit){
+    clear(wordLayer); clear(ofLayer); clear(suitLayer);
+    for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
+    for (const ch of 'OF') addLetter(ofLayer, ch);
+    for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch);
+    setScramble(false);
+  }
+
+  // Show letters FIRST, then play glitch OVER them (so no “typing on”)
+  function playGlitchOverlay() {
+    if (!glitch || glitch.style.display === 'none' || !glitch.src) return;
+    glitch.currentTime = 0;
+    glitch.style.display = 'block';
+    const end = () => { glitch.pause(); glitch.style.display = 'none'; };
+    const safety = setTimeout(end, 1500);
+    glitch.onended = () => { clearTimeout(safety); end(); };
+    glitch.play().catch(() => { clearTimeout(safety); end(); });
+  }
+
+  let initialized = false;
+  let lastSeq = 0;
+
+  onValue(ref(db, 'haunt'), (snap) => {
+    const v = snap.val();
+    if (!v) return;
+
+    if (!initialized){
+      initialized = true;
+      lastSeq = Number(v.seq || 0);
+      setScramble(true);
+      return;
     }
 
-    const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
+    const seq = Number(v.seq || 0);
+    if (seq <= lastSeq) return;
+    lastSeq = seq;
 
-    function renderWord(text){
-      clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addLetter(wordLayer, ch);
-      setScramble(false);
+    if (v.mode === 'WORD'){
+      renderWord(v.word || '');
+      playGlitchOverlay();
+    } else if (v.mode === 'CARD'){
+      renderCard(v.value || '', v.suit || '');
+      playGlitchOverlay();
     }
-    function renderCard(value, suit){
-      clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
-      for (const ch of 'OF') addLetter(ofLayer, ch);
-      for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch);
-      setScramble(false);
-    }
+  });
 
-    // Show letters FIRST, then play glitch OVER them (so no “typing on”)
-    function playGlitchOverlay() {
-      if (!glitch || glitch.style.display === 'none' || !glitch.src) return;
-      glitch.currentTime = 0;
-      glitch.style.display = 'block';
-      const end = () => { glitch.pause(); glitch.style.display = 'none'; };
-      const safety = setTimeout(end, 1500);
-      glitch.onended = () => { clearTimeout(safety); end(); };
-      glitch.play().catch(() => { clearTimeout(safety); end(); });
-    }
-
-    let initialized = false;
-    let lastSeq = 0;
-
-    onValue(ref(db, 'haunt'), (snap) => {
-      const v = snap.val();
-      if (!v) return;
-
-      if (!initialized){
-        initialized = true;
-        lastSeq = Number(v.seq || 0);
-        setScramble(true);
-        return;
-      }
-
-      const seq = Number(v.seq || 0);
-      if (seq <= lastSeq) return;
-      lastSeq = seq;
-
-      if (v.mode === 'WORD'){
-        renderWord(v.word || '');
-        playGlitchOverlay();
-      } else if (v.mode === 'CARD'){
-        renderCard(v.value || '', v.suit || '');
-        playGlitchOverlay();
-      }
-    });
-
-    // rehearsal: tap to put jumble back
-    document.body.addEventListener('click', () => setScramble(true));
-  </script>
+  // rehearsal: tap to put jumble back
+  document.body.addEventListener('click', () => setScramble(true));
+</script>
 </body>
 </html>
