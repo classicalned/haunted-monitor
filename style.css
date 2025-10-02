@@ -22,7 +22,7 @@
   --scramble-brightness: 0.60; /* < 1 darker, > 1 brighter */
   --scramble-contrast:   .85;  /* slight contrast lift */
   --scramble-opacity:    .80;  /* jumble visibility when shown */
-  --scramble-blur:       1 px;  /* optional feather if you want */
+  --scramble-blur:       3 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
   --magnet-brightness: .70;   /* <1 darker, >1 brighter */
