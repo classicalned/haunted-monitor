@@ -1,43 +1,45 @@
-/* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
+/* ========================== KNOBS ========================== */
 :root{
-  /* global letter styling */
-  --letter-vw: 4.5vw;       /* size of each magnet (width) */
-  --gap: .1vw;              /* spacing between letters */
-  --spacer-vw: .9vw;       /* width of the “space” block */
+  /* global letter sizing/spacing */
+  --letter-vw: 4.5vw;
+  --gap: .1vw;
+  --spacer-vw: .9vw;
 
-  /* vertical positions (percent of screen height) */
+  /* vertical placement */
   --word-top: 5%;
   --of-top:   16%;
   --suit-top: 26%;
 
-  /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
+  /* horizontal offsets from center (use px, vw, etc.) */
   --word-dx:  -15vw;
   --of-dx:    -13vw;
   --suit-dx:  -11vw;
 
-  /* grain strength */
+  /* grain */
   --grain-opacity: 0.85;
 
-  /* scrambled look tuning */
-  --scramble-brightness: 0.56; /* < 1 darker, > 1 brighter */
-  --scramble-contrast:   .85;  /* slight contrast lift */
-  --scramble-opacity:    1;  /* jumble visibility when shown */
-  --scramble-blur:       2 px;  /* optional feather if you want */
+  /* scrambled image tuning */
+  --scramble-brightness: 0.56;
+  --scramble-contrast:   0.85;
+  --scramble-opacity:    1;
+  /* use unitless numbers for blur/offsets; CSS below multiplies by 1px,
+     so you can type “2” or “2 ” without it breaking */
+  --scramble-blur: 2;   /* px */
 
-  /* magnet layer look tuning */
-  --magnet-brightness: .10;   /* <1 darker, >1 brighter */
-  --magnet-contrast:   0.20;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .70;   /* 0 transparent → 1 fully visible */
-  --magnet-blur:       3 px;   /* add soft blur if desired */
+  /* letter (magnet) look */
+  --magnet-brightness: 0.10;
+  --magnet-contrast:   0.20;
+  --magnet-opacity:    0.70;
+  --magnet-blur:       3;   /* px */
 
-  /* directional drop shadow (light from the right ⇒ shadow to the left) */
-  --magnet-shadow-x:    -10px;                     /* horizontal offset */
-  --magnet-shadow-y:     -1px;                      /* vertical offset */
-  --magnet-shadow-blur:  0 px;                      /* softness */
-  --magnet-shadow-color: rgba(0,0,0,0.7);          /* color/strength */
+  /* SHADOW (directional) — light from right ⇒ shadow to left */
+  --magnet-shadow-x:   -10; /* px left/right */
+  --magnet-shadow-y:    -1; /* px up/down  */
+  --magnet-shadow-blur:  0; /* px softness */
+  --magnet-shadow-opacity: 0.70;
 }
+/* =========================================================== */
 
-/* ----------------------------------------------------------------------- */
 html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; }
 #stage { position:relative; width:100vw; height:100vh; background:#000; }
 
@@ -54,7 +56,11 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
   filter:
     brightness(var(--scramble-brightness))
     contrast(var(--scramble-contrast))
-    blur(var(--scramble-blur));
+    blur(calc(var(--scramble-blur) * 1px));
+  -webkit-filter:
+    brightness(var(--scramble-brightness))
+    contrast(var(--scramble-contrast))
+    blur(calc(var(--scramble-blur) * 1px));
 }
 #grain    { z-index:25; mix-blend-mode:screen; opacity:var(--grain-opacity); pointer-events:none; }
 #glitch   { z-index:30; display:none; pointer-events:none; }
@@ -67,30 +73,46 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
   pointer-events:none;
 }
 
-/* vertical placement */
+/* vertical + horizontal placement */
 #wordLayer{ top: var(--word-top); left: calc(50% + var(--word-dx)); }
 #ofLayer  { top: var(--of-top);   left: calc(50% + var(--of-dx)); }
 #suitLayer{ top: var(--suit-top); left: calc(50% + var(--suit-dx)); }
 
-/* letter image + spacer */
-.magnet {
+/* ===== Letter + Shadow (two-image stack) ===== */
+
+/* wrapper per letter so we can stack a shadow img under the main img */
+.magnetWrap{
+  position: relative;
   width: var(--letter-vw);
   max-width: 72px;
-  user-select:none;
-  image-rendering:auto;
-  opacity: var(--magnet-opacity);
+  height: auto;
+  pointer-events: none;
+}
 
-  /* all effects combined so nothing overrides the shadow */
+/* both images follow the wrapper size */
+.magnetWrap > img{ width:100%; height:auto; display:block; }
+
+/* SHADOW image sits behind, turned into a dark blurred silhouette */
+.magnetShadow{
+  position:absolute; inset:0;
+  transform:
+    translate(calc(var(--magnet-shadow-x) * 1px),
+              calc(var(--magnet-shadow-y) * 1px));
+  filter:
+    brightness(0) saturate(100%)
+    blur(calc(var(--magnet-shadow-blur) * 1px));
+  opacity: var(--magnet-shadow-opacity);
+}
+
+/* FRONT image — your actual magnet tile */
+.magnet{
+  position:relative; z-index:1;
+  opacity: var(--magnet-opacity);
   filter:
     brightness(var(--magnet-brightness))
     contrast(var(--magnet-contrast))
-    blur(var(--magnet-blur))
-    drop-shadow(var(--magnet-shadow-x) var(--magnet-shadow-y) var(--magnet-shadow-blur) var(--magnet-shadow-color));
-  -webkit-filter:
-    brightness(var(--magnet-brightness))
-    contrast(var(--magnet-contrast))
-    blur(var(--magnet-blur))
-    drop-shadow(var(--magnet-shadow-x) var(--magnet-shadow-y) var(--magnet-shadow-blur) var(--magnet-shadow-color));
+    blur(calc(var(--magnet-blur) * 1px));
 }
 
+/* space between words */
 .spacer { width: var(--spacer-vw); max-width: 28px; }
