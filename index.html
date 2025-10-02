@@ -12,6 +12,8 @@
   <!-- iOS PWA fullscreen (if you add to home screen in Safari) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="Monitor">
 </head>
 <body>
   <div id="stage">
@@ -131,7 +133,7 @@
       }
     });
 
-    // --- Fullscreen on first tap (works in Chrome & Safari) ---
+    // Fullscreen on first tap
     let askedFullscreen = false;
     function requestFull() {
       if (askedFullscreen) return;
@@ -146,6 +148,11 @@
       setScramble(true);
       requestFull();
     }, { once: false });
+
+    // PWA: register service worker so Chrome can offer “Install app”
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+    }
   </script>
 </body>
 </html>
