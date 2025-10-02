@@ -19,8 +19,8 @@
   --grain-opacity: 0.75;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.60; /* < 1 darker, > 1 brighter */
-  --scramble-contrast:   .85;  /* slight contrast lift */
+  --scramble-brightness: 0.55; /* < 1 darker, > 1 brighter */
+  --scramble-contrast:   .83;  /* slight contrast lift */
   --scramble-opacity:    .80;  /* jumble visibility when shown */
   --scramble-blur:       3 px;  /* optional feather if you want */
 
