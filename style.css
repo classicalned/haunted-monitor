@@ -6,7 +6,7 @@
   --magnetGap: 0.55rem;       /* gap between letters */
 
   /* Lines vertical placement */
-  --wordTop: 63%;             /* main word line */
+  --wordTop: 30%;             /* main word line */
   --ofTop:   70%;             /* "OF" line */
   --suitTop: 77%;             /* suit line */
 
