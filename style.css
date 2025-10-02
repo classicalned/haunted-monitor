@@ -16,7 +16,7 @@
   --suit-dx:  -11vw;
 
   /* grain strength */
-  --grain-opacity: 0.75;
+  --grain-opacity: 0.50;
 
   /* scrambled look tuning */
   --scramble-brightness: 0.55; /* < 1 darker, > 1 brighter */
