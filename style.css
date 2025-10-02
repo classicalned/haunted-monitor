@@ -19,15 +19,15 @@
   --grain-opacity: 0.85;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.9; /* < 1 darker, > 1 brighter */
-  --scramble-contrast:   .9;  /* slight contrast lift */
-  --scramble-opacity:    1;  /* jumble visibility when shown */
+  --scramble-brightness: 0.56; /* < 1 darker, > 1 brighter */
+  --scramble-contrast:   .8;  /* slight contrast lift */
+  --scramble-opacity:    .8;  /* jumble visibility when shown */
   --scramble-blur:       0 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .10;   /* <1 darker, >1 brighter */
-  --magnet-contrast:   0.20;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .70;   /* 0 transparent → 1 fully visible */
+  --magnet-brightness: 1.;   /* <1 darker, >1 brighter */
+  --magnet-contrast:   1.;   /* <1 softer, >1 punchier */
+  --magnet-opacity:    .90;   /* 0 transparent → 1 fully visible */
   --magnet-blur:       3 px;   /* add soft blur if desired */
 
   /* directional drop shadow (light from the right ⇒ shadow to the left) */
