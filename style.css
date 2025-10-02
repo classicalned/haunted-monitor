@@ -2,7 +2,7 @@
 :root{
   /* global letter styling */
   --letter-vw: 4.5vw;       /* size of each magnet (width) */
-  --gap: .8vw;              /* spacing between letters */
+  --gap: .5vw;              /* spacing between letters */
   --spacer-vw: 1.3vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
@@ -31,7 +31,7 @@
   --magnet-blur:       2 px; /* add soft blur if desired */
 
   /* magnet drop shadow knobs */
-  --magnet-shadow-x:     -3 px;   /* horizontal offset */
+  --magnet-shadow-x:     -6 px;   /* horizontal offset */
   --magnet-shadow-y:     0 px;   /* vertical offset */
   --magnet-shadow-blur:  5 px;   /* blur radius */
   --magnet-shadow-color: rgba(0,0,0,0.6); /* shadow color */
