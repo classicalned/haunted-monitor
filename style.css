@@ -25,14 +25,14 @@
   --scramble-blur:       3 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .70;   /* <1 darker, >1 brighter */
+  --magnet-brightness: .50;   /* <1 darker, >1 brighter */
   --magnet-contrast:   .85;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .90;   /* 0 transparent → 1 fully visible */
+  --magnet-opacity:    .80;   /* 0 transparent → 1 fully visible */
   --magnet-blur:       2 px; /* add soft blur if desired */
 
   /* magnet drop shadow knobs */
-  --magnet-shadow-x:     -6 px;   /* horizontal offset */
-  --magnet-shadow-y:     1 px;   /* vertical offset */
+  --magnet-shadow-x:     3 px;   /* horizontal offset */
+  --magnet-shadow-y:     3 px;   /* vertical offset */
   --magnet-shadow-blur:  3 px;   /* blur radius */
   --magnet-shadow-color: rgba(0,0,0,0.6); /* shadow color */
 }
