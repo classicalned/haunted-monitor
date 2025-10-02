@@ -1,9 +1,9 @@
 /* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
 :root{
   /* global letter styling */
-  --letter-vw: 3.2vw;          /* size of each magnet (width) */
-  --gap: 1.1vw;                /* spacing between letters */
-  --spacer-vw: 2.0vw;          /* width of the “space” block */
+  --letter-vw: 4.2vw;          /* size of each magnet (width) */
+  --gap: .8vw;                /* spacing between letters */
+  --spacer-vw: 1.3vw;          /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
   --word-top: 08%;
@@ -11,9 +11,9 @@
   --suit-top: 24%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
-  --word-dx:  -100vw;
-  --of-dx:    0vw;
-  --suit-dx:  0vw;
+  --word-dx:  -50vw;
+  --of-dx:    -50vw;
+  --suit-dx:  -50vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
