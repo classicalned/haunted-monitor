@@ -2,72 +2,70 @@
 <html>
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Haunted Monitor</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div id="stage">
+    <!-- background -->
     <video id="bg" playsinline muted loop autoplay preload="auto" src="background.mp4"></video>
-    <img id="scrambled" src="scrambled.png" alt="" />
+
+    <!-- pre-reveal jumble (tint/levels handled in CSS via --scramble-* vars) -->
+    <img id="scrambled" src="scrambled.png" alt=""/>
+
+    <!-- letter lines (render under grain & glitch) -->
     <div id="wordLayer" class="magnet-line"></div>
-    <div id="ofLayer" class="magnet-line"></div>
+    <div id="ofLayer"   class="magnet-line"></div>
     <div id="suitLayer" class="magnet-line"></div>
-    <video id="grain" playsinline muted loop autoplay preload="auto" src="grain.mp4"></video>
+
+    <!-- film grain on top of letters -->
+    <video id="grain"  playsinline muted loop autoplay preload="auto" src="grain.mp4"></video>
+
+    <!-- quick burst overlay (highest) -->
+    <video id="glitch" playsinline muted preload="auto" src="glitch.mp4"></video>
   </div>
 
-  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
     import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
-    const firebaseConfig = {
-  "apiKey": "AIzaSyBrePZ1A0Kux-5kI9IBxWBkFQzaOBnBaA8",
-  "authDomain": "haunted-monitor.firebaseapp.com",
-  "databaseURL": "https://haunted-monitor-default-rtdb.firebaseio.com",
-  "projectId": "haunted-monitor",
-  "storageBucket": "haunted-monitor.firebasestorage.app",
-  "messagingSenderId": "469649621539",
-  "appId": "1:469649621539:web:0200310ee852d37e2de796"
-};
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
 
-    // Utils
-    const qs = new URLSearchParams(location.search);
-    const room = qs.get('room') || 'demo';
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrePZ1A0Kux-5kI9IBxWBkFQzaOBnBaA8",
+      authDomain: "haunted-monitor.firebaseapp.com",
+      databaseURL: "https://haunted-monitor-default-rtdb.firebaseio.com",
+      projectId: "haunted-monitor",
+      storageBucket: "haunted-monitor.firebasestorage.app",
+      messagingSenderId: "469649621539",
+      appId: "1:469649621539:web:0200310ee852d37e2de796"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
     const wordLayer = document.getElementById('wordLayer');
-    const ofLayer = document.getElementById('ofLayer');
+    const ofLayer   = document.getElementById('ofLayer');
     const suitLayer = document.getElementById('suitLayer');
     const scrambled = document.getElementById('scrambled');
-    const bg = document.getElementById('bg');
-    const grain = document.getElementById('grain');
+    const bg        = document.getElementById('bg');
+    const grain     = document.getElementById('grain');
+    const glitch    = document.getElementById('glitch');
 
-    // Hide missing optional media gracefully
-    bg.addEventListener('error', () => bg.style.display='none');
-    grain.addEventListener('error', () => grain.style.display='none');
-    scrambled.addEventListener('error', () => scrambled.style.display='none');
+    [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
 
-    function clearLayer(layer) { while (layer.firstChild) layer.removeChild(layer.firstChild); }
+    function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
 
-    function addMagnetChar(layer, ch) {
-      if (ch === ' ') {
-        const spacer = document.createElement('div');
-        spacer.className = 'spacer';
-        layer.appendChild(spacer);
-        return;
-      }
+    function addLetter(layer, ch){
+      if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+      const up = ch.toUpperCase();
+      if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+
       const img = document.createElement('img');
-      img.draggable = false;
+      img.src = `letters/${up}.png`;
       img.className = 'magnet';
-      const upper = ch.toUpperCase();
-      if (upper >= 'A' && upper <= 'Z') {
-        img.src = `letters/${upper}.png`;
-      } else {
-        const spacer = document.createElement('div');
-        spacer.className = 'spacer';
-        layer.appendChild(spacer);
-        return;
-      }
+      img.draggable = false;
+
+      // tiny organic wobble
       const rot = (Math.random()*4 - 2);
       const jitter = (Math.random()*2 - 1);
       img.style.transform = `rotate(${rot}deg)`;
@@ -75,29 +73,61 @@
       layer.appendChild(img);
     }
 
-    function showWord(phrase) {
-      scrambled.style.opacity = 0;
-      clearLayer(ofLayer); clearLayer(suitLayer);
-      clearLayer(wordLayer);
-      for (const ch of phrase.toUpperCase()) addMagnetChar(wordLayer, ch);
+    const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
+
+    function renderWord(text){
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (text||'').toUpperCase()) addLetter(wordLayer, ch);
+      setScramble(false);
+    }
+    function renderCard(value, suit){
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
+      for (const ch of 'OF') addLetter(ofLayer, ch);
+      for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch);
+      setScramble(false);
     }
 
-    function showCard(value, suit) {
-      scrambled.style.opacity = 0;
-      clearLayer(wordLayer); clearLayer(ofLayer); clearLayer(suitLayer);
-      for (const ch of value.toUpperCase()) addMagnetChar(wordLayer, ch);
-      for (const ch of 'OF') addMagnetChar(ofLayer, ch);
-      for (const ch of suit.toUpperCase()) addMagnetChar(suitLayer, ch);
+    // Show letters FIRST, then play glitch OVER them (so no “typing on”)
+    function playGlitchOverlay() {
+      if (!glitch || glitch.style.display === 'none' || !glitch.src) return;
+      glitch.currentTime = 0;
+      glitch.style.display = 'block';
+      const end = () => { glitch.pause(); glitch.style.display = 'none'; };
+      const safety = setTimeout(end, 1500);
+      glitch.onended = () => { clearTimeout(safety); end(); };
+      glitch.play().catch(() => { clearTimeout(safety); end(); });
     }
 
-    onValue(ref(db, `haunt/${room}`), (snap) => {
+    let initialized = false;
+    let lastSeq = 0;
+
+    onValue(ref(db, 'haunt'), (snap) => {
       const v = snap.val();
       if (!v) return;
-      if (v.mode === 'WORD') showWord(v.word || '');
-      if (v.mode === 'CARD') showCard(v.value || '', v.suit || '');
+
+      if (!initialized){
+        initialized = true;
+        lastSeq = Number(v.seq || 0);
+        setScramble(true);
+        return;
+      }
+
+      const seq = Number(v.seq || 0);
+      if (seq <= lastSeq) return;
+      lastSeq = seq;
+
+      if (v.mode === 'WORD'){
+        renderWord(v.word || '');
+        playGlitchOverlay();
+      } else if (v.mode === 'CARD'){
+        renderCard(v.value || '', v.suit || '');
+        playGlitchOverlay();
+      }
     });
 
-    document.body.addEventListener('click', () => { scrambled.style.opacity = 1; });
+    // rehearsal: tap to put jumble back
+    document.body.addEventListener('click', () => setScramble(true));
   </script>
 </body>
 </html>
