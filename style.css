@@ -6,12 +6,12 @@
   --spacer-vw: 2.0vw;          /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
-  --word-top: 58%;
-  --of-top:   66%;
-  --suit-top: 74%;
+  --word-top: 08%;
+  --of-top:   16%;
+  --suit-top: 24%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
-  --word-dx:  0vw;
+  --word-dx:  -100vw;
   --of-dx:    0vw;
   --suit-dx:  0vw;
 
