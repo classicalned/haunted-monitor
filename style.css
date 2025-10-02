@@ -20,7 +20,7 @@
   z-index:10;
   opacity:1;                         /* pre-reveal = 1; app sets to 0 on reveal */
   transition:opacity 300ms linear;
-  mix-blend-mode:soft-light;         /* try soft-light, overlay, or multiply */
+  mix-blend-mode:overlay;         /* try soft-light, overlay, or multiply */
   filter:brightness(0.95) contrast(1.05) saturate(0.92) blur(0.18vh);
   pointer-events:none;
 }
