@@ -19,8 +19,8 @@
   --grain-opacity: 0.75;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.60;
-  --scramble-contrast:   0.85;
+  --scramble-brightness: 0.78;
+  --scramble-contrast:   1.05;
   --scramble-opacity:    1;
   --scramble-blur:       1px;
 }
