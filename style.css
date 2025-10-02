@@ -11,9 +11,9 @@
   --suit-top: 24%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
-  --word-dx:  -50vw;
-  --of-dx:    -50vw;
-  --suit-dx:  -50vw;
+  --word-dx:  -25vw;
+  --of-dx:    -25vw;
+  --suit-dx:  -25vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
