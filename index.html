@@ -5,16 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Haunted Monitor</title>
   <link rel="stylesheet" href="style.css"/>
+
+  <!-- PWA / fullscreen hooks -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <!-- iOS PWA fullscreen (if you add to home screen in Safari) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div id="stage">
     <!-- background -->
     <video id="bg" playsinline muted loop autoplay preload="auto" src="background.mp4"></video>
 
-    <!-- pre-reveal jumble (tint/levels handled in CSS via --scramble-* vars) -->
+    <!-- pre-reveal jumble -->
     <img id="scrambled" src="scrambled.png" alt=""/>
 
-    <!-- letter lines (render under grain & glitch) -->
+    <!-- letter lines -->
     <div id="wordLayer" class="magnet-line"></div>
     <div id="ofLayer"   class="magnet-line"></div>
     <div id="suitLayer" class="magnet-line"></div>
@@ -50,6 +57,7 @@
     const bg        = document.getElementById('bg');
     const grain     = document.getElementById('grain');
     const glitch    = document.getElementById('glitch');
+    const stage     = document.getElementById('stage');
 
     [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
 
@@ -64,8 +72,6 @@
       img.src = `letters/${up}.png`;
       img.className = 'magnet';
       img.draggable = false;
-
-      // tiny organic wobble
       const rot = (Math.random()*4 - 2);
       const jitter = (Math.random()*2 - 1);
       img.style.transform = `rotate(${rot}deg)`;
@@ -88,7 +94,6 @@
       setScramble(false);
     }
 
-    // Show letters FIRST, then play glitch OVER them (so no “typing on”)
     function playGlitchOverlay() {
       if (!glitch || glitch.style.display === 'none' || !glitch.src) return;
       glitch.currentTime = 0;
@@ -126,8 +131,21 @@
       }
     });
 
-    // rehearsal: tap to put jumble back
-    document.body.addEventListener('click', () => setScramble(true));
+    // --- Fullscreen on first tap (works in Chrome & Safari) ---
+    let askedFullscreen = false;
+    function requestFull() {
+      if (askedFullscreen) return;
+      askedFullscreen = true;
+      const el = stage;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) { try { req.call(el); } catch(e){} }
+    }
+
+    // rehearsal: tap to put jumble back AND try fullscreen
+    document.body.addEventListener('click', () => {
+      setScramble(true);
+      requestFull();
+    }, { once: false });
   </script>
 </body>
 </html>
