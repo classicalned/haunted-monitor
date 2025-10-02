@@ -55,35 +55,45 @@
 
     function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
 
-    function addLetter(layer, ch){
+    // wobble=true => subtle crookedness; wobble=false => perfectly straight
+    function addLetter(layer, ch, wobble = true){
       if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
       const up = ch.toUpperCase();
       if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+
       const img = document.createElement('img');
       img.src = `letters/${up}.png`;
       img.className = 'magnet';
       img.draggable = false;
-      const rot = (Math.random()*4 - 2);
-      const jitter = (Math.random()*2 - 1);
-      img.style.transform = `rotate(${rot}deg)`;
-      img.style.marginTop = `${jitter}px`;
+
+      if (wobble) {
+        // very slight: about -1°..+1° and <1px vertical jitter
+        const rot = (Math.random() * 2 - 1.0);        // degrees
+        const jitterY = (Math.random() * 1.2 - 0.6);  // px
+        img.style.transform = `rotate(${rot}deg) translateY(${jitterY}px)`;
+      } else {
+        img.style.transform = 'none';
+      }
+
       layer.appendChild(img);
     }
 
     const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
 
-    // WORD now renders on the OF (middle) line
+    // WORD now renders on the OF (middle) line — with wobble
     function renderWord(text){
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addLetter(ofLayer, ch);
+      for (const ch of (text||'').toUpperCase()) addLetter(ofLayer, ch, /*wobble*/ true);
       setScramble(false);
     }
 
     function renderCard(value, suit){
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
-      for (const ch of 'OF') addLetter(ofLayer, ch);
-      for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch);
+      // value & suit get subtle wobble
+      for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch, true);
+      // literal "OF" stays straight
+      for (const ch of 'OF') addLetter(ofLayer, ch, false);
+      for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch, true);
       setScramble(false);
     }
 
