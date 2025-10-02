@@ -2,8 +2,8 @@
 :root{
   /* global letter styling */
   --letter-vw: 3.2vw;          /* size of each magnet (width) */
-  --gap: .5vw;                /* spacing between letters */
-  --spacer-vw: 2.0vw;          /* width of the “space” block */
+  --gap: 1.vw;                /* spacing between letters */
+  --spacer-vw: 1.0vw;          /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
   --word-top: 10%;
@@ -11,7 +11,7 @@
   --suit-top: 26%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
-  --word-dx:  -300vw;
+  --word-dx:  -500vw;
   --of-dx:    -300vw;
   --suit-dx:  -300vw;
 
