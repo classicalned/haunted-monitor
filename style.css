@@ -7,8 +7,8 @@
 
   /* vertical positions (percent of screen height) */
   --word-top: 5%;
-  --of-top:   10%;
-  --suit-top: 16%;
+  --of-top:   13%;
+  --suit-top: 20%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
   --word-dx:  -15vw;
