@@ -1,7 +1,7 @@
 /* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
 :root{
   /* global letter styling */
-  --letter-vw: 5.2vw;          /* size of each magnet (width) */
+  --letter-vw: 3.2vw;          /* size of each magnet (width) */
   --gap: 1.1vw;                /* spacing between letters */
   --spacer-vw: 2.0vw;          /* width of the “space” block */
 
