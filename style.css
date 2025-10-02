@@ -1,28 +1,40 @@
 /* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
 :root{
   /* global letter styling */
-  --letter-vw: 4.2vw;          /* size of each magnet (width) */
-  --gap: .8vw;                /* spacing between letters */
-  --spacer-vw: 1.3vw;          /* width of the “space” block */
+  --letter-vw: 4.5vw;       /* size of each magnet (width) */
+  --gap: .8vw;              /* spacing between letters */
+  --spacer-vw: 1.3vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
   --word-top: 08%;
   --of-top:   16%;
   --suit-top: 24%;
 
-  /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
-  --word-dx:  -25vw;
-  --of-dx:    -25vw;
-  --suit-dx:  -25vw;
+  /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
+  --word-dx:  -15vw;
+  --of-dx:    -15vw;
+  --suit-dx:  -15vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.50; /* < 1 darker, > 1 brighter */
-  --scramble-contrast:   .82; /* slight contrast lift */
-  --scramble-opacity:    .80;    /* jumble visibility when shown */
-  --scramble-blur:       2 px;  /* optional feather if you want */
+  --scramble-brightness: 0.52; /* < 1 darker, > 1 brighter */
+  --scramble-contrast:   .82;  /* slight contrast lift */
+  --scramble-opacity:    .85;  /* jumble visibility when shown */
+  --scramble-blur:       2px;  /* optional feather if you want */
+
+  /* magnet layer look tuning */
+  --magnet-brightness: .87;   /* <1 darker, >1 brighter */
+  --magnet-contrast:   .90;   /* <1 softer, >1 punchier */
+  --magnet-opacity:    .90;   /* 0 transparent → 1 fully visible */
+  --magnet-blur:       1px; /* add soft blur if desired */
+
+  /* magnet drop shadow knobs */
+  --magnet-shadow-x:     2px;   /* horizontal offset */
+  --magnet-shadow-y:     2px;   /* vertical offset */
+  --magnet-shadow-blur:  4px;   /* blur radius */
+  --magnet-shadow-color: rgba(0,0,0,0.6); /* shadow color */
 }
 
 /* ----------------------------------------------------------------------- */
@@ -61,5 +73,16 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
 #suitLayer{ top: var(--suit-top); left: calc(50% + var(--suit-dx)); }
 
 /* letter image + spacer */
-.magnet { width: var(--letter-vw); max-width: 72px; user-select:none; image-rendering:auto; }
+.magnet {
+  width: var(--letter-vw);
+  max-width: 72px;
+  user-select:none;
+  image-rendering:auto;
+  opacity: var(--magnet-opacity);
+  filter:
+    brightness(var(--magnet-brightness))
+    contrast(var(--magnet-contrast))
+    blur(var(--magnet-blur))
+    drop-shadow(var(--magnet-shadow-x) var(--magnet-shadow-y) var(--magnet-shadow-blur) var(--magnet-shadow-color));
+}
 .spacer { width: var(--spacer-vw); max-width: 28px; }
