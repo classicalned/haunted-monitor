@@ -6,23 +6,23 @@
   --spacer-vw: 2.0vw;          /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
-  --word-top: 58%;
-  --of-top:   66%;
-  --suit-top: 74%;
+  --word-top: 30%;
+  --of-top:   38%;
+  --suit-top: 46%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc.  */
-  --word-dx:  0vw;
-  --of-dx:    0vw;
-  --suit-dx:  0vw;
+  --word-dx:  -30vw;
+  --of-dx:    -30vw;
+  --suit-dx:  -30vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
 
   /* scrambled look tuning */
-  --scramble-brightness: 0.78; /* < 1 darker, > 1 brighter */
-  --scramble-contrast:   1.05; /* slight contrast lift */
+  --scramble-brightness: 0.6; /* < 1 darker, > 1 brighter */
+  --scramble-contrast:   .85; /* slight contrast lift */
   --scramble-opacity:    1;    /* jumble visibility when shown */
-  --scramble-blur:       0px;  /* optional feather if you want */
+  --scramble-blur:       3px;  /* optional feather if you want */
 }
 
 /* ----------------------------------------------------------------------- */
