@@ -71,4 +71,90 @@
       const img = document.createElement('img');
       img.src = `letters/${up}.png`;
       img.className = 'magnet';
-      img.draggable
+      img.draggable = false;
+      // little organic wobble
+      const rot = (Math.random()*4 - 2);
+      const jitter = (Math.random()*2 - 1);
+      img.style.transform = `rotate(${rot}deg)`;
+      img.style.marginTop = `${jitter}px`;
+      layer.appendChild(img);
+    }
+
+    function addCharFallback(layer, up){
+      const tile = document.createElement('div');
+      tile.textContent = up;
+      tile.className = 'magnet fallback';
+      layer.appendChild(tile);
+    }
+
+    function addChar(layer, ch){
+      if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+      const up = ch.toUpperCase();
+      if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+      if (letterPngsOk) addCharImage(layer, up); else addCharFallback(layer, up);
+    }
+
+    function setScramble(show){ if (scrambled) scrambled.style.opacity = show ? 1 : 0; }
+
+    function renderWord(text){
+      setScramble(false);
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (text||'').toUpperCase()) addChar(wordLayer, ch);
+    }
+    function renderCard(value, suit){
+      setScramble(false);
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (value||'').toUpperCase()) addChar(wordLayer, ch);
+      for (const ch of 'OF') addChar(ofLayer, ch);
+      for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
+    }
+
+    // Optional glitch wrapper
+    let glitchBusy = false;
+    function glitchThen(cb){
+      if (!glitch || glitch.style.display==='none' || !glitch.src){ cb(); return; }
+      if (glitchBusy){ cb(); return; }
+      glitchBusy = true;
+      glitch.currentTime = 0;
+      glitch.style.display = 'block';
+      const finish = () => { glitch.pause(); glitch.style.display='none'; glitchBusy=false; cb(); };
+      const safety = setTimeout(finish, 1500);
+      glitch.onended = () => { clearTimeout(safety); finish(); };
+      glitch.play().catch(() => { clearTimeout(safety); finish(); });
+    }
+
+    // Ignore first snapshot to avoid auto-glitch on load
+    let initialized = false;
+    let lastSeq = 0;
+
+    onValue(ref(db, 'haunt'), (snap) => {
+      const v = snap.val();
+      if (!v) return;
+
+      if (!initialized){
+        initialized = true;
+        lastSeq = Number(v.seq || 0);
+        setScramble(true); // start covered until a real trigger
+        return;
+      }
+
+      const seq = Number(v.seq || 0);
+      if (seq <= lastSeq) return;
+      lastSeq = seq;
+
+      if (v.mode === 'WORD'){
+        glitchThen(() => renderWord(v.word || ''));
+      } else if (v.mode === 'CARD'){
+        glitchThen(() => renderCard(v.value || '', v.suit || ''));
+      }
+    });
+
+    // Tap to re-cover with the jumble (rehearsal)
+    document.body.addEventListener('click', () => setScramble(true));
+
+    // Debug helpers in console
+    window.forceWord = (t='TEST') => glitchThen(() => renderWord(t));
+    window.forceCard = (v='ACE', s='HEARTS') => glitchThen(() => renderCard(v,s));
+  </script>
+</body>
+</html>
