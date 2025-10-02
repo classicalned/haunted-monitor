@@ -6,14 +6,14 @@
   --spacer-vw: 1.3vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
-  --word-top: 08%;
-  --of-top:   16%;
-  --suit-top: 24%;
+  --word-top: 06%;
+  --of-top:   15%;
+  --suit-top: 26%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
-  --word-dx:  -15vw;
-  --of-dx:    -15vw;
-  --suit-dx:  -15vw;
+  --word-dx:  -11vw;
+  --of-dx:    -11vw;
+  --suit-dx:  -11vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
@@ -25,15 +25,15 @@
   --scramble-blur:       1 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .87;   /* <1 darker, >1 brighter */
-  --magnet-contrast:   .90;   /* <1 softer, >1 punchier */
+  --magnet-brightness: .70;   /* <1 darker, >1 brighter */
+  --magnet-contrast:   .85;   /* <1 softer, >1 punchier */
   --magnet-opacity:    .90;   /* 0 transparent → 1 fully visible */
-  --magnet-blur:       1px; /* add soft blur if desired */
+  --magnet-blur:       2 px; /* add soft blur if desired */
 
   /* magnet drop shadow knobs */
-  --magnet-shadow-x:     2px;   /* horizontal offset */
-  --magnet-shadow-y:     2px;   /* vertical offset */
-  --magnet-shadow-blur:  4px;   /* blur radius */
+  --magnet-shadow-x:     -3 px;   /* horizontal offset */
+  --magnet-shadow-y:     0 px;   /* vertical offset */
+  --magnet-shadow-blur:  5 px;   /* blur radius */
   --magnet-shadow-color: rgba(0,0,0,0.6); /* shadow color */
 }
 
