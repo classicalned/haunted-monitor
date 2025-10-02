@@ -21,7 +21,7 @@
   /* scrambled look tuning */
   --scramble-brightness: 0.53; /* < 1 darker, > 1 brighter */
   --scramble-contrast:   .82; /* slight contrast lift */
-  --scramble-opacity:    1;    /* jumble visibility when shown */
+  --scramble-opacity:    .85;    /* jumble visibility when shown */
   --scramble-blur:       1 px;  /* optional feather if you want */
 }
 
