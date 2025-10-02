@@ -32,8 +32,8 @@
 
   /* magnet drop shadow knobs */
   --magnet-shadow-x:     -6 px;   /* horizontal offset */
-  --magnet-shadow-y:     0 px;   /* vertical offset */
-  --magnet-shadow-blur:  5 px;   /* blur radius */
+  --magnet-shadow-y:     1 px;   /* vertical offset */
+  --magnet-shadow-blur:  3 px;   /* blur radius */
   --magnet-shadow-color: rgba(0,0,0,0.6); /* shadow color */
 }
 
