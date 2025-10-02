@@ -1,77 +1,16 @@
-/* ========================
-   TUNABLES (edit these)
-   ======================== */
-:root{
-  /* layout */
-  --word-top: 52%;     /* row 1 vertical position */
-  --of-top:   60%;     /* row 2 vertical position */
-  --suit-top: 68%;     /* row 3 vertical position */
-
-  /* letter sizing/spacing */
-  --magnet-height: 10vh;  /* letter image height */
-  --gap:           0.30rem;  /* spacing between letters */
-  --spacer-w:      1.6vw;    /* width for spaces and non A–Z */
-
-  /* layer order (z-indexes) */
-  --z-bg:      5;
-  --z-letters: 12;     /* must be < --z-grain if you want grain on top */
-  --z-scram:   10;
-  --z-grain:   20;
-  --z-glitch:  30;
-
-  /* overlays */
-  --grain-opacity: 0.75;   /* 0 → 1 */
-  --scramble-fade-ms: 320; /* fade time for scrambled overlay */
-}
-
-/* ========================
-   Base / stage
-   ======================== */
 html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; }
-#stage    { position:relative; width:100vw; height:100vh; background:#000; }
+#stage { position:relative; width:100vw; height:100vh; background:#000; }
+#bg, #grain { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+#grain { mix-blend-mode:screen; opacity:.75; pointer-events:none; }
 
-#bg, #grain, #scrambled, #glitch {
-  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-}
+#scrambled { position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  transition: opacity .35s ease-in-out; opacity:1; }
 
-/* z-order */
-#bg        { z-index: var(--z-bg); }
-#scrambled { z-index: var(--z-scram); transition: opacity var(--scramble-fade-ms)ms ease-in-out; opacity: 1; }
-#grain     { z-index: var(--z-grain); mix-blend-mode: screen; opacity: var(--grain-opacity); pointer-events:none; }
-#glitch    { z-index: var(--z-glitch); display:none; }
+.magnet-line { position:absolute; left:50%; transform:translateX(-50%); display:flex; align-items:flex-end; }
 
-/* ========================
-   Letter rows
-   ======================== */
-.magnet-line{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  z-index: var(--z-letters);
-  display:flex;
-  align-items:flex-end;
-  gap: var(--gap);
-  pointer-events:none;
-}
+#wordLayer { top: 58%; }
+#ofLayer   { top: 66%; }
+#suitLayer { top: 74%; }
 
-#wordLayer { top: var(--word-top); }
-#ofLayer   { top: var(--of-top); }
-#suitLayer { top: var(--suit-top); }
-
-/* Letters */
-.magnet{
-  display:block;
-  height: var(--magnet-height);
-  width:auto;
-  user-select:none;
-  image-rendering:auto;
-}
-
-/* When PNG letters are missing, the JS will create text fallback tiles using this class */
-.magnet.fallback{
-  font: bold calc(var(--magnet-height) * 0.9) / 1.0 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  color:#d9e2ff;
-  text-shadow: 0 1px 0 rgba(0,0,0,.6);
-}
-
-.spacer{ width: var(--spacer-w); max-width: 28px; }
+.magnet { width:5.8vw; max-width:72px; user-select:none; image-rendering:auto; }
+.spacer { width:2.5vw; max-width:28px; }
