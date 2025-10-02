@@ -6,7 +6,7 @@
   --spacer-vw: 1.3vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
-  --word-top: 05%;
+  --word-top: 5%;
   --of-top:   16%;
   --suit-top: 26%;
 
@@ -22,19 +22,18 @@
   --scramble-brightness: 0.56; /* < 1 darker, > 1 brighter */
   --scramble-contrast:   .85;  /* slight contrast lift */
   --scramble-opacity:    .70;  /* jumble visibility when shown */
-  --scramble-blur:       2 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
   --magnet-brightness: .50;   /* <1 darker, >1 brighter */
   --magnet-contrast:   .95;   /* <1 softer, >1 punchier */
   --magnet-opacity:    .70;   /* 0 transparent → 1 fully visible */
-  --magnet-blur:       3 px; /* add soft blur if desired */
+  --magnet-blur:       3px;   /* add soft blur if desired */
 
- /* directional drop shadow (light from the right ⇒ shadow to the left) */
-  --magnet-shadow-x: -10 px;                      /* horizontal offset */
-  --magnet-shadow-y:  0 px;                      /* vertical offset */
-  --magnet-shadow-blur: 3 px;                    /* softness */
-  --magnet-shadow-color: rgba(0,0,0,0.7);       /* color/strength */
+  /* directional drop shadow (light from the right ⇒ shadow to the left) */
+  --magnet-shadow-x:    -10px;
+  --magnet-shadow-y:     0px;
+  --magnet-shadow-blur:  3px;
+  --magnet-shadow-color: rgba(0,0,0,0.7);
 }
 
 /* ----------------------------------------------------------------------- */
@@ -54,7 +53,7 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
   filter:
     brightness(var(--scramble-brightness))
     contrast(var(--scramble-contrast))
-    blur(var(--scramble-blur));
+    blur(2px); /* hard-coded blur here */
 }
 #grain    { z-index:25; mix-blend-mode:screen; opacity:var(--grain-opacity); pointer-events:none; }
 #glitch   { z-index:30; display:none; pointer-events:none; }
@@ -80,10 +79,13 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
   image-rendering:auto;
   opacity: var(--magnet-opacity);
 
-  /* IMPORTANT: all effects in ONE filter so shadow doesn't get overwritten */
-  /* Order matters: we apply letter blur BEFORE creating the shadow, so the
-     shadow is crisp around the blurred silhouette. Adjust to taste. */
+  /* all effects combined so nothing overrides the shadow */
   filter:
+    brightness(var(--magnet-brightness))
+    contrast(var(--magnet-contrast))
+    blur(var(--magnet-blur))
+    drop-shadow(var(--magnet-shadow-x) var(--magnet-shadow-y) var(--magnet-shadow-blur) var(--magnet-shadow-color));
+  -webkit-filter:
     brightness(var(--magnet-brightness))
     contrast(var(--magnet-contrast))
     blur(var(--magnet-blur))
