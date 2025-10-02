@@ -3,7 +3,7 @@
   /* global letter styling */
   --letter-vw: 4.5vw;       /* size of each magnet (width) */
   --gap: .5vw;              /* spacing between letters */
-  --spacer-vw: 1.3vw;       /* width of the “space” block */
+  --spacer-vw: .9vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
   --word-top: 5%;
