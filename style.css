@@ -25,8 +25,8 @@
   --scramble-blur:       2 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .50;   /* <1 darker, >1 brighter */
-  --magnet-contrast:   .95;   /* <1 softer, >1 punchier */
+  --magnet-brightness: .40;   /* <1 darker, >1 brighter */
+  --magnet-contrast:   .90;   /* <1 softer, >1 punchier */
   --magnet-opacity:    .70;   /* 0 transparent → 1 fully visible */
   --magnet-blur:       3 px;   /* add soft blur if desired */
 
