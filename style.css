@@ -11,8 +11,8 @@
   --suitTop: 77%;             /* suit line */
 
   /* Scrambled overlay blend/tint */
-  --scrambleOpacity: 0.30;
-  --scrambleBlend: multiply;  /* try: multiply, screen, overlay, soft-light */
+  --scrambleOpacity: 1.;
+  --scrambleBlend: screen;  /* try: multiply, screen, overlay, soft-light */
   --scrambleHue: 0deg;        /* fine tint */
   --scrambleSat: 1.05;        /* 1 = neutral */
   --scrambleBright: 0.92;     /* <1 darker / >1 brighter */
