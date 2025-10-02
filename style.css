@@ -1,14 +1,14 @@
 /* ---------- Quick knobs you can tweak without touching HTML/JS ---------- */
 :root{
   /* global letter styling */
-  --letter-vw: 4.0vw;       /* size of each magnet (width) */
+  --letter-vw: 4.3vw;       /* size of each magnet (width) */
   --gap: .1vw;              /* spacing between letters */
   --spacer-vw: .9vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
   --word-top: 5%;
-  --of-top:   16%;
-  --suit-top: 26%;
+  --of-top:   10%;
+  --suit-top: 16%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
   --word-dx:  -15vw;
