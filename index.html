@@ -31,112 +31,145 @@
     <video id="glitch" playsinline muted preload="auto" src="glitch.mp4"></video>
   </div>
 
-  <script type="module">
-    import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+<script type="module">
+  import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+  import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
 
-    // === YOUR FIREBASE CONFIG (as you gave me) ===
-    const firebaseConfig = {
-      apiKey: "AIzaSyBrePZ1A0Kux-5kI9IBxWBkFQzaOBnBaA8",
-      authDomain: "haunted-monitor.firebaseapp.com",
-      databaseURL: "https://haunted-monitor-default-rtdb.firebaseio.com",
-      projectId: "haunted-monitor",
-      storageBucket: "haunted-monitor.firebasestorage.app",
-      messagingSenderId: "469649621539",
-      appId: "1:469649621539:web:0200310ee852d37e2de796"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db  = getDatabase(app);
+  // --- Firebase ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrePZ1A0Kux-5kI9IBxWBkFQzaOBnBaA8",
+    authDomain: "haunted-monitor.firebaseapp.com",
+    databaseURL: "https://haunted-monitor-default-rtdb.firebaseio.com",
+    projectId: "haunted-monitor",
+    storageBucket: "haunted-monitor.firebasestorage.app",
+    messagingSenderId: "469649621539",
+    appId: "1:469649621539:web:0200310ee852d37e2de796"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
 
-    // Elements
-    const wordLayer = document.getElementById('wordLayer');
-    const ofLayer   = document.getElementById('ofLayer');
-    const suitLayer = document.getElementById('suitLayer');
-    const scrambled = document.getElementById('scrambled');
-    const bg        = document.getElementById('bg');
-    const grain     = document.getElementById('grain');
-    const glitch    = document.getElementById('glitch');
+  // --- Elements ---
+  const wordLayer = document.getElementById('wordLayer');
+  const ofLayer   = document.getElementById('ofLayer');
+  const suitLayer = document.getElementById('suitLayer');
+  const scrambled = document.getElementById('scrambled');
+  const bg        = document.getElementById('bg');
+  const grain     = document.getElementById('grain');
+  const glitch    = document.getElementById('glitch');
 
-    // Hide missing optional media gracefully
-    [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
+  // Hide missing optional media gracefully
+  [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
 
-    function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
-    function addChar(layer, ch){
-      if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
-      const up = ch.toUpperCase();
-      if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
-      const img = document.createElement('img');
-      img.src = `letters/${up}.png`;
-      img.className = 'magnet';
-      img.draggable = false;
-      // small organic wobble
-      const rot = (Math.random()*4 - 2);
-      const jitter = (Math.random()*2 - 1);
-      img.style.transform = `rotate(${rot}deg)`;
-      img.style.marginTop = `${jitter}px`;
-      layer.appendChild(img);
+  // --- Logging helper ---
+  const log = (...a) => console.log('[HM]', ...a);
+
+  // --- Detect if letter PNGs exist (case sensitive on GitHub!) ---
+  let letterPngsOk = true;
+  (function checkLetters(){
+    const test = new Image();
+    test.onload  = () => { letterPngsOk = true; log('letters/A.png found'); };
+    test.onerror = () => { letterPngsOk = false; log('letters/A.png NOT found — will use text fallback'); };
+    test.src = 'letters/A.png?cachebust=' + Math.random();
+  })();
+
+  function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
+
+  function addCharImage(layer, up){
+    const img = document.createElement('img');
+    img.src = `letters/${up}.png`;
+    img.className = 'magnet';
+    img.draggable = false;
+    const rot = (Math.random()*4 - 2);
+    const jitter = (Math.random()*2 - 1);
+    img.style.transform = `rotate(${rot}deg)`;
+    img.style.marginTop = `${jitter}px`;
+    layer.appendChild(img);
+  }
+
+  function addCharFallback(layer, up){
+    const tile = document.createElement('div');
+    tile.textContent = up;
+    tile.style.font = 'bold 9vh/1.0 sans-serif';
+    tile.style.color = '#d9e2ff';
+    tile.style.textShadow = '0 1px 0 rgba(0,0,0,.6)';
+    tile.style.userSelect = 'none';
+    layer.appendChild(tile);
+  }
+
+  function addChar(layer, ch){
+    if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+    const up = ch.toUpperCase();
+    if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+    if (letterPngsOk) addCharImage(layer, up); else addCharFallback(layer, up);
+  }
+
+  function setScramble(show){ if (scrambled) scrambled.style.opacity = show ? 1 : 0; }
+
+  function renderWord(text){
+    log('renderWord:', text);
+    setScramble(false);
+    clear(wordLayer); clear(ofLayer); clear(suitLayer);
+    for (const ch of (text||'').toUpperCase()) addChar(wordLayer, ch);
+  }
+  function renderCard(value, suit){
+    log('renderCard:', value, 'OF', suit);
+    setScramble(false);
+    clear(wordLayer); clear(ofLayer); clear(suitLayer);
+    for (const ch of (value||'').toUpperCase()) addChar(wordLayer, ch);
+    for (const ch of 'OF') addChar(ofLayer, ch);
+    for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
+  }
+
+  // Glitch wrapper
+  let glitchBusy = false;
+  function glitchThen(cb){
+    if (!glitch || glitch.style.display==='none' || !glitch.src){ cb(); return; }
+    if (glitchBusy){ cb(); return; }
+    glitchBusy = true;
+    glitch.currentTime = 0;
+    glitch.style.display = 'block';
+    const finish = () => { glitch.pause(); glitch.style.display='none'; glitchBusy=false; cb(); };
+    const safety = setTimeout(finish, 1500);
+    glitch.onended = () => { clearTimeout(safety); finish(); };
+    glitch.play().catch(() => { clearTimeout(safety); finish(); });
+  }
+
+  // Ignore first snapshot (no auto-glitch on load)
+  let initialized = false;
+  let lastSeq = 0;
+
+  onValue(ref(db, 'haunt'), (snap) => {
+    const v = snap.val();
+    log('firebase snapshot:', v);
+    if (!v) return;
+
+    if (!initialized){
+      initialized = true;
+      lastSeq = Number(v.seq || 0);
+      log('initialized, lastSeq=', lastSeq);
+      setScramble(true); // start jumble visible
+      return;
     }
 
-    function setScramble(show){ if (scrambled) scrambled.style.opacity = show ? 1 : 0; }
+    const seq = Number(v.seq || 0);
+    if (seq <= lastSeq) { log('stale or same seq, ignoring:', seq); return; }
+    lastSeq = seq;
 
-    function renderWord(text){
-      setScramble(false);
-      clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addChar(wordLayer, ch);
+    if (v.mode === 'WORD'){
+      glitchThen(() => renderWord(v.word || ''));
+    } else if (v.mode === 'CARD'){
+      glitchThen(() => renderCard(v.value || '', v.suit || ''));
+    } else {
+      log('unknown mode', v.mode);
     }
-    function renderCard(value, suit){
-      setScramble(false);
-      clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (value||'').toUpperCase()) addChar(wordLayer, ch);
-      for (const ch of 'OF') addChar(ofLayer, ch);
-      for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
-    }
+  });
 
-    // Play glitch clip, then run callback. Skips if glitch asset missing.
-    let glitchBusy = false;
-    function glitchThen(cb){
-      if (!glitch || glitch.style.display==='none' || !glitch.src){ cb(); return; }
-      if (glitchBusy){ cb(); return; }
-      glitchBusy = true;
-      glitch.currentTime = 0;
-      glitch.style.display = 'block';
-      const finish = () => { glitch.pause(); glitch.style.display='none'; glitchBusy=false; cb(); };
-      const safety = setTimeout(finish, 1500);
-      glitch.onended = () => { clearTimeout(safety); finish(); };
-      glitch.play().catch(() => { clearTimeout(safety); finish(); });
-    }
+  // Rehearsal tap
+  document.body.addEventListener('click', () => setScramble(true));
 
-    // Ignore first snapshot so we don’t auto-trigger on page load
-    let lastSeq = 0;
-    let initialized = false;
-
-    onValue(ref(db, 'haunt'), (snap) => {
-      const v = snap.val();
-      if (!v) return;
-
-      // First snap: just cache seq and keep scrambled visible
-      if (!initialized){
-        initialized = true;
-        lastSeq = Number(v.seq || 0);
-        setScramble(true); // show jumble until first real trigger
-        return;
-      }
-
-      // Only respond to newer seq
-      const seq = Number(v.seq || 0);
-      if (seq <= lastSeq) return;
-      lastSeq = seq;
-
-      // Reveal
-      if (v.mode === 'WORD'){
-        glitchThen(() => renderWord(v.word || ''));
-      } else if (v.mode === 'CARD'){
-        glitchThen(() => renderCard(v.value || '', v.suit || ''));
-      }
-    });
-
-    // Tap anywhere to put the jumble back (rehearsal)
-    document.body.addEventListener('click', () => setScramble(true));
-  </script>
+  // --- Expose force helpers in console ---
+  window.forceWord = (t='TEST') => { glitchThen(() => renderWord(t)); };
+  window.forceCard = (v='ACE', s='HEARTS') => { glitchThen(() => renderCard(v, s)); };
+</script>
 </body>
 </html>
