@@ -5,36 +5,24 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Haunted Monitor</title>
   <link rel="stylesheet" href="style.css"/>
-  <style>
-    /* Minimal safety so it still works without style.css */
-    #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; background:#000; isolation:isolate; }
-    #stage > video, #stage > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-
-    #bg        { z-index: 5; }
-    #scrambled { z-index: 10; opacity: 1; transition: opacity 280ms linear; }
-    /* Letters sit ABOVE grain so they’re clear; glitch sits above everything. */
-    .magnet-line { position:absolute; left:50%; transform:translateX(-50%); z-index: 25; display:flex; gap:var(--magnetGap,0.75rem); pointer-events:none; }
-    #grain     { z-index: 20; }
-    #glitch    { z-index: 40; display:none; } /* Always above letters */
-
-    .magnet { height: var(--magnetHeight,11vh); width:auto; user-select:none; -webkit-user-drag:none; }
-    .spacer { width: var(--spacerWidth,3vh); }
-  </style>
 </head>
 <body>
   <div id="stage">
+    <!-- background -->
     <video id="bg" playsinline muted loop autoplay preload="auto" src="background.mp4"></video>
 
-    <!-- Scrambled overlay (blend/tint adjusted in CSS vars) -->
+    <!-- pre-reveal jumble (tint/levels handled in CSS via --scramble-* vars) -->
     <img id="scrambled" src="scrambled.png" alt=""/>
 
+    <!-- letter lines (render under grain & glitch) -->
     <div id="wordLayer" class="magnet-line"></div>
     <div id="ofLayer"   class="magnet-line"></div>
     <div id="suitLayer" class="magnet-line"></div>
 
+    <!-- film grain on top of letters -->
     <video id="grain"  playsinline muted loop autoplay preload="auto" src="grain.mp4"></video>
 
-    <!-- Glitch plays OVER letters; we render first, then play glitch -->
+    <!-- quick burst overlay (highest) -->
     <video id="glitch" playsinline muted preload="auto" src="glitch.mp4"></video>
   </div>
 
@@ -51,6 +39,7 @@
       messagingSenderId: "469649621539",
       appId: "1:469649621539:web:0200310ee852d37e2de796"
     };
+
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
 
@@ -64,28 +53,19 @@
 
     [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
 
-    /* ---------- Preload letter PNGs to avoid “typing-in” pops ---------- */
-    const letterCache = {};
-    function preloadLetters() {
-      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-      letters.forEach(ch => {
-        const img = new Image();
-        img.src = `letters/${ch}.png`;
-        letterCache[ch] = img;
-      });
-    }
-    preloadLetters();
-
     function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
-    function addChar(layer, ch){
+
+    function addLetter(layer, ch){
       if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
       const up = ch.toUpperCase();
       if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+
       const img = document.createElement('img');
+      img.src = `letters/${up}.png`;
       img.className = 'magnet';
       img.draggable = false;
-      img.src = `letters/${up}.png`;
-      // small organic wobble
+
+      // tiny organic wobble
       const rot = (Math.random()*4 - 2);
       const jitter = (Math.random()*2 - 1);
       img.style.transform = `rotate(${rot}deg)`;
@@ -93,33 +73,32 @@
       layer.appendChild(img);
     }
 
-    function setScramble(show){ if (scrambled) scrambled.style.opacity = show ? 1 : 0; }
+    const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
 
     function renderWord(text){
-      setScramble(false);
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addChar(wordLayer, ch);
+      for (const ch of (text||'').toUpperCase()) addLetter(wordLayer, ch);
+      setScramble(false);
     }
     function renderCard(value, suit){
-      setScramble(false);
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (value||'').toUpperCase()) addChar(wordLayer, ch);
-      for (const ch of 'OF') addChar(ofLayer, ch);
-      for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
+      for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
+      for (const ch of 'OF') addLetter(ofLayer, ch);
+      for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch);
+      setScramble(false);
     }
 
-    /* ---------- Play glitch OVER current frame (don’t delay render) ---------- */
-    function playGlitchOver() {
-      if (!glitch || glitch.style.display==='none' || !glitch.src) return;
+    // Show letters FIRST, then play glitch OVER them (so no “typing on”)
+    function playGlitchOverlay() {
+      if (!glitch || glitch.style.display === 'none' || !glitch.src) return;
       glitch.currentTime = 0;
       glitch.style.display = 'block';
-      const finish = () => { glitch.pause(); glitch.style.display='none'; };
-      const safety = setTimeout(finish, 1500);
-      glitch.onended = () => { clearTimeout(safety); finish(); };
-      glitch.play().catch(() => { clearTimeout(safety); finish(); });
+      const end = () => { glitch.pause(); glitch.style.display = 'none'; };
+      const safety = setTimeout(end, 1500);
+      glitch.onended = () => { clearTimeout(safety); end(); };
+      glitch.play().catch(() => { clearTimeout(safety); end(); });
     }
 
-    /* ---------- Firebase listener with seq de-dupe ---------- */
     let initialized = false;
     let lastSeq = 0;
 
@@ -138,17 +117,16 @@
       if (seq <= lastSeq) return;
       lastSeq = seq;
 
-      // Render first (so letters are visible), then flash glitch over the top.
       if (v.mode === 'WORD'){
         renderWord(v.word || '');
-        playGlitchOver();
+        playGlitchOverlay();
       } else if (v.mode === 'CARD'){
         renderCard(v.value || '', v.suit || '');
-        playGlitchOver();
+        playGlitchOverlay();
       }
     });
 
-    // Rehearsal: click to re-show the scrambled overlay
+    // rehearsal: tap to put jumble back
     document.body.addEventListener('click', () => setScramble(true));
   </script>
 </body>
