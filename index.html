@@ -9,7 +9,6 @@
   <!-- PWA / fullscreen hooks -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
-  <!-- iOS PWA fullscreen (if you add to home screen in Safari) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -17,21 +16,12 @@
 </head>
 <body>
   <div id="stage">
-    <!-- background -->
     <video id="bg" playsinline muted loop autoplay preload="auto" src="background.mp4"></video>
-
-    <!-- pre-reveal jumble -->
     <img id="scrambled" src="scrambled.png" alt=""/>
-
-    <!-- letter lines -->
     <div id="wordLayer" class="magnet-line"></div>
     <div id="ofLayer"   class="magnet-line"></div>
     <div id="suitLayer" class="magnet-line"></div>
-
-    <!-- film grain on top of letters -->
     <video id="grain"  playsinline muted loop autoplay preload="auto" src="grain.mp4"></video>
-
-    <!-- quick burst overlay (highest) -->
     <video id="glitch" playsinline muted preload="auto" src="glitch.mp4"></video>
   </div>
 
@@ -69,7 +59,6 @@
       if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
       const up = ch.toUpperCase();
       if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
-
       const img = document.createElement('img');
       img.src = `letters/${up}.png`;
       img.className = 'magnet';
@@ -83,14 +72,13 @@
 
     const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
 
-    // WORD goes to the *suit* (bottom) line now
+    // WORD now renders on the OF (middle) line
     function renderWord(text){
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addLetter(suitLayer, ch);
+      for (const ch of (text||'').toUpperCase()) addLetter(ofLayer, ch);
       setScramble(false);
     }
 
-    // CARD stays the same (value → top, "OF" → middle, suit → bottom)
     function renderCard(value, suit){
       clear(wordLayer); clear(ofLayer); clear(suitLayer);
       for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch);
@@ -146,13 +134,11 @@
       if (req) { try { req.call(el); } catch(e){} }
     }
 
-    // rehearsal: tap to put jumble back AND try fullscreen
     document.body.addEventListener('click', () => {
       setScramble(true);
       requestFull();
     }, { once: false });
 
-    // PWA: register service worker so Chrome can offer “Install app”
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
     }
