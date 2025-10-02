@@ -3,7 +3,7 @@
   /* Letter look/placement */
   --magnetHeight: 9.5vh;      /* overall letter size */
   --spacerWidth: 2vh;         /* space tile width */
-  --magnetGap: 0.55rem;       /* gap between letters */
+  --magnetGap: 0.2rem;       /* gap between letters */
 
   /* Lines vertical placement */
   --wordTop: 30%;             /* main word line */
