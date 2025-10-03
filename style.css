@@ -7,13 +7,13 @@
 
   /* vertical positions (percent of screen height) */
   --word-top: 13%;
-  --of-top:   18%;
-  --suit-top: 23%;
+  --of-top:   20%;
+  --suit-top: 27%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
   --word-dx:  -20vw;
   --of-dx:    -18vw;
-  --suit-dx:  -16vw;
+  --suit-dx:  -13vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
@@ -25,9 +25,9 @@
   --scramble-blur:       0 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .20;   /* <1 darker, >1 brighter */
-  --magnet-contrast:   0.93;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .60;   /* 0 transparent → 1 fully visible */
+  --magnet-brightness: .15;   /* <1 darker, >1 brighter */
+  --magnet-contrast:   0.83;   /* <1 softer, >1 punchier */
+  --magnet-opacity:    .40;   /* 0 transparent → 1 fully visible */
   --magnet-blur:       3px;   /* add soft blur if desired */
 
   /* directional drop shadow (light from the right ⇒ shadow to the left) */
