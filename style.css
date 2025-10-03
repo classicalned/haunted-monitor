@@ -6,14 +6,14 @@
   --spacer-vw: .9vw;       /* width of the “space” block */
 
   /* vertical positions (percent of screen height) */
-  --word-top: 3%;
-  --of-top:   10%;
-  --suit-top: 16%;
+  --word-top: 13%;
+  --of-top:   18%;
+  --suit-top: 23%;
 
   /* horizontal offsets (relative to screen center). Accept px, vw, etc. */
-  --word-dx:  -15vw;
-  --of-dx:    -13vw;
-  --suit-dx:  -11vw;
+  --word-dx:  -20vw;
+  --of-dx:    -18vw;
+  --suit-dx:  -16vw;
 
   /* grain strength */
   --grain-opacity: 0.75;
@@ -25,10 +25,10 @@
   --scramble-blur:       0 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .30;   /* <1 darker, >1 brighter */
+  --magnet-brightness: .20;   /* <1 darker, >1 brighter */
   --magnet-contrast:   0.93;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .70;   /* 0 transparent → 1 fully visible */
-  --magnet-blur:       3 px;   /* add soft blur if desired */
+  --magnet-opacity:    .60;   /* 0 transparent → 1 fully visible */
+  --magnet-blur:       3px;   /* add soft blur if desired */
 
   /* directional drop shadow (light from the right ⇒ shadow to the left) */
   --magnet-shadow-x:    -10px;                     /* horizontal offset */
