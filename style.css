@@ -16,7 +16,7 @@
   --suit-dx:  -13vw;
 
   /* grain strength */
-  --grain-opacity: 0.75;
+  --grain-opacity: 0.80;
 
   /* scrambled look tuning */
   --scramble-brightness: 0.56; /* < 1 darker, > 1 brighter */
@@ -25,9 +25,9 @@
   --scramble-blur:       0 px;  /* optional feather if you want */
 
   /* magnet layer look tuning */
-  --magnet-brightness: .15;   /* <1 darker, >1 brighter */
+  --magnet-brightness: .10;   /* <1 darker, >1 brighter */
   --magnet-contrast:   0.83;   /* <1 softer, >1 punchier */
-  --magnet-opacity:    .40;   /* 0 transparent → 1 fully visible */
+  --magnet-opacity:    .65;   /* 0 transparent → 1 fully visible */
   --magnet-blur:       3px;   /* add soft blur if desired */
 
   /* directional drop shadow (light from the right ⇒ shadow to the left) */
