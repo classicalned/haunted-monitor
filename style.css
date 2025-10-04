@@ -20,7 +20,7 @@
   /* scrambled look tuning */
   --scramble-brightness: 0.49;
   --scramble-contrast:   .8;
-  --scramble-opacity:    .7;
+  --scramble-opacity:    .4;
   --scramble-blur:       0 px;
 
   /* magnet layer look tuning */
