@@ -102,7 +102,7 @@
       glitch.currentTime = 0;
       glitch.style.display = 'block';
       const end = () => { glitch.pause(); glitch.style.display = 'none'; };
-      const safety = setTimeout(end, 1500);
+      const safety = setTimeout(end, 2900);
       glitch.onended = () => { clearTimeout(safety); end(); };
       glitch.play().catch(() => { clearTimeout(safety); end(); });
     }
