@@ -50,15 +50,16 @@ html,body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; 
 /* Scrambled: hidden by default; visible when .show is applied */
 #scrambled{
   z-index:10;
-  opacity: 0;                                 /* default hidden */
+  opacity: 0 !important;                      /* default hidden; force override inline */
   transition: opacity .35s ease-in-out;       /* fade in/out */
+  will-change: opacity;
   filter:
     brightness(var(--scramble-brightness))
     contrast(var(--scramble-contrast))
     blur(var(--scramble-blur));
 }
 #scrambled.show{
-  opacity: var(--scramble-opacity);           /* controlled by CSS var */
+  opacity: var(--scramble-opacity) !important; /* controlled by CSS var; force override inline */
 }
 
 #grain    { z-index:25; mix-blend-mode:screen; opacity:var(--grain-opacity); pointer-events:none; }
