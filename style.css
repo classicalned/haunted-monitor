@@ -20,13 +20,13 @@
   /* scrambled look tuning */
   --scramble-brightness: 0.49;
   --scramble-contrast:   .8;
-  --scramble-opacity:    .4;
+  --scramble-opacity:    .7;
   --scramble-blur:       0 px;
 
   /* magnet layer look tuning */
   --magnet-brightness: .49;
   --magnet-contrast:   0.8;
-  --magnet-opacity:    .8;
+  --magnet-opacity:    .7;
   --magnet-blur:       0 px;
 
   /* shadow */
