@@ -34,6 +34,7 @@
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
 
+    const stage     = document.getElementById('stage');
     const wordLayer = document.getElementById('wordLayer');
     const ofLayer   = document.getElementById('ofLayer');
     const suitLayer = document.getElementById('suitLayer');
@@ -78,6 +79,7 @@
       for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
     }
 
+    // Play glitch on top; perform the swap under cover after 1000ms
     let glitchBusy = false;
     function glitchThen(cb){
       if (!glitch || glitch.style.display==='none' || !glitch.src){ cb(); return; }
@@ -89,8 +91,7 @@
       const finish = () => { glitch.pause(); glitch.style.display='none'; glitchBusy=false; };
       glitch.onended = finish;
 
-      // run callback safely after 1000 ms, under glitch cover
-      setTimeout(() => { cb(); }, 1000);
+      setTimeout(() => { cb(); }, 1000); // delay the reveal swap under the glitch
     }
 
     let initialized = false;
@@ -118,9 +119,23 @@
       }
     });
 
+    // Show jumble again on tap (rehearsal)
     document.body.addEventListener('click', () => setScramble(true));
 
-    // Ambient static every 8 seconds
+    // Fullscreen on first tap (restored)
+    let askedFullscreen = false;
+    document.body.addEventListener('click', () => {
+      if (askedFullscreen) return;
+      askedFullscreen = true;
+      const el = stage || document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) { try { req.call(el); } catch(_){} }
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(()=>{});
+      }
+    }, { once: false });
+
+    // Ambient static every 8 seconds (only if glitch not showing)
     if (staticVid){
       setInterval(() => {
         if (glitch.style.display === 'block') return;
