@@ -5,19 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Haunted Monitor</title>
   <link rel="stylesheet" href="style.css"/>
-
-  <!-- PWA / fullscreen hooks -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="apple-mobile-web-app-title" content="Monitor">
 </head>
 <body>
   <div id="stage">
     <video id="bg" playsinline muted loop autoplay preload="auto" src="background.mp4"></video>
-    <img id="scrambled" src="scrambled.png" alt=""/>
+    <img id="scrambled" class="show" src="scrambled.png" alt=""/>
+    <video id="static" playsinline muted preload="auto" src="static.mp4"></video>
     <div id="wordLayer" class="magnet-line"></div>
     <div id="ofLayer"   class="magnet-line"></div>
     <div id="suitLayer" class="magnet-line"></div>
@@ -38,7 +31,6 @@
       messagingSenderId: "469649621539",
       appId: "1:469649621539:web:0200310ee852d37e2de796"
     };
-
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
 
@@ -49,62 +41,56 @@
     const bg        = document.getElementById('bg');
     const grain     = document.getElementById('grain');
     const glitch    = document.getElementById('glitch');
-    const stage     = document.getElementById('stage');
+    const staticVid = document.getElementById('static');
 
-    [bg, grain, scrambled, glitch].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
+    [bg, grain, scrambled, glitch, staticVid].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
 
     function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
 
-    // wobble=true => subtle crookedness; wobble=false => perfectly straight
-    function addLetter(layer, ch, wobble = true){
+    function addChar(layer, ch, wobble=true){
       if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
       const up = ch.toUpperCase();
       if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
-
       const img = document.createElement('img');
       img.src = `letters/${up}.png`;
       img.className = 'magnet';
       img.draggable = false;
-
-      if (wobble) {
-        // very slight: about -1°..+1° and <1px vertical jitter
-        const rot = (Math.random() * 2 - 1.0);        // degrees
-        const jitterY = (Math.random() * 1.2 - 0.6);  // px
-        img.style.transform = `rotate(${rot}deg) translateY(${jitterY}px)`;
-      } else {
-        img.style.transform = 'none';
+      if (wobble){
+        const rot = (Math.random()*2 - 1.0);
+        const jitter = (Math.random()*1.5 - 0.75);
+        img.style.transform = `rotate(${rot}deg) translateY(${jitter}px)`;
       }
-
       layer.appendChild(img);
     }
 
-    const setScramble = (show)=> { if (scrambled) scrambled.style.opacity = show ? 1 : 0; };
+    function setScramble(show){ scrambled.classList.toggle('show', !!show); }
 
-    // WORD now renders on the OF (middle) line — with wobble
     function renderWord(text){
-      clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      for (const ch of (text||'').toUpperCase()) addLetter(ofLayer, ch, /*wobble*/ true);
       setScramble(false);
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (text||'').toUpperCase()) addChar(ofLayer, ch);
     }
-
     function renderCard(value, suit){
-      clear(wordLayer); clear(ofLayer); clear(suitLayer);
-      // value & suit get subtle wobble
-      for (const ch of (value||'').toUpperCase()) addLetter(wordLayer, ch, true);
-      // literal "OF" stays straight
-      for (const ch of 'OF') addLetter(ofLayer, ch, false);
-      for (const ch of (suit||'').toUpperCase()) addLetter(suitLayer, ch, true);
       setScramble(false);
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (value||'').toUpperCase()) addChar(wordLayer, ch);
+      for (const ch of 'OF') addChar(ofLayer, ch, false); // keep OF straight
+      for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
     }
 
-    function playGlitchOverlay() {
-      if (!glitch || glitch.style.display === 'none' || !glitch.src) return;
+    let glitchBusy = false;
+    function glitchThen(cb){
+      if (!glitch || glitch.style.display==='none' || !glitch.src){ cb(); return; }
+      if (glitchBusy){ cb(); return; }
+      glitchBusy = true;
       glitch.currentTime = 0;
       glitch.style.display = 'block';
-      const end = () => { glitch.pause(); glitch.style.display = 'none'; };
-      const safety = setTimeout(end, 2900);
-      glitch.onended = () => { clearTimeout(safety); end(); };
-      glitch.play().catch(() => { clearTimeout(safety); end(); });
+      glitch.play().catch(()=>{});
+      const finish = () => { glitch.pause(); glitch.style.display='none'; glitchBusy=false; };
+      glitch.onended = finish;
+
+      // run callback safely after 1000 ms, under glitch cover
+      setTimeout(() => { cb(); }, 1000);
     }
 
     let initialized = false;
@@ -126,31 +112,23 @@
       lastSeq = seq;
 
       if (v.mode === 'WORD'){
-        renderWord(v.word || '');
-        playGlitchOverlay();
+        glitchThen(() => renderWord(v.word || ''));
       } else if (v.mode === 'CARD'){
-        renderCard(v.value || '', v.suit || '');
-        playGlitchOverlay();
+        glitchThen(() => renderCard(v.value || '', v.suit || ''));
       }
     });
 
-    // Fullscreen on first tap
-    let askedFullscreen = false;
-    function requestFull() {
-      if (askedFullscreen) return;
-      askedFullscreen = true;
-      const el = stage;
-      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-      if (req) { try { req.call(el); } catch(e){} }
-    }
+    document.body.addEventListener('click', () => setScramble(true));
 
-    document.body.addEventListener('click', () => {
-      setScramble(true);
-      requestFull();
-    }, { once: false });
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+    // Ambient static every 8 seconds
+    if (staticVid){
+      setInterval(() => {
+        if (glitch.style.display === 'block') return;
+        staticVid.currentTime = 0;
+        staticVid.style.display = 'block';
+        staticVid.play().catch(()=>{});
+        staticVid.onended = () => { staticVid.style.display = 'none'; };
+      }, 8000);
     }
   </script>
 </body>
