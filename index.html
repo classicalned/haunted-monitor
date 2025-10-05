@@ -119,6 +119,126 @@
       }
     });
 
+    // --- Fullscreen handling ---
+    // Skip Fullscreen API on iOS/iPadOS to avoid the "X" close button overlay.
+    const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    let askedFullscreen = false;
+    document.body.addEventListener('click', () => {
+      setScramble(true); // keep your rehearsal behavior
+
+      if (askedFullscreen) return;
+      askedFullscreen = true;
+
+      if (!isiOS) {
+        const el = stage || document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        if (req) { try { req.call(el); } catch(_){} }
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('landscape').catch(()=>{});
+        }
+      }
+      // On iOS we intentionally do nothing—your PWA runs full-bleed without the overlay UI.
+    }, { once: false });
+
+    // Ambient static every 8 seconds (only if glitch not showing)
+    if (staticVid){
+      setInterval(() => {
+        if (glitch.style.display === 'block') return;
+        staticVid.currentTime = 0;
+        staticVid.style.display = 'block';
+        staticVid.play().catch(()=>{});
+        staticVid.onended = () => { staticVid.style.display = 'none'; };
+      }, 8000);
+    }
+  </script>
+</body>
+</html>    const stage     = document.getElementById('stage');
+    const wordLayer = document.getElementById('wordLayer');
+    const ofLayer   = document.getElementById('ofLayer');
+    const suitLayer = document.getElementById('suitLayer');
+    const scrambled = document.getElementById('scrambled');
+    const bg        = document.getElementById('bg');
+    const grain     = document.getElementById('grain');
+    const glitch    = document.getElementById('glitch');
+    const staticVid = document.getElementById('static');
+
+    [bg, grain, scrambled, glitch, staticVid].forEach(el => el && el.addEventListener('error', () => (el.style.display='none')));
+
+    function clear(layer){ while(layer.firstChild) layer.removeChild(layer.firstChild); }
+
+    function addChar(layer, ch, wobble=true){
+      if (ch === ' ') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+      const up = ch.toUpperCase();
+      if (up < 'A' || up > 'Z') { const s=document.createElement('div'); s.className='spacer'; layer.appendChild(s); return; }
+      const img = document.createElement('img');
+      img.src = `letters/${up}.png`;
+      img.className = 'magnet';
+      img.draggable = false;
+      if (wobble){
+        const rot = (Math.random()*2 - 1.0);
+        const jitter = (Math.random()*1.5 - 0.75);
+        img.style.transform = `rotate(${rot}deg) translateY(${jitter}px)`;
+      }
+      layer.appendChild(img);
+    }
+
+    function setScramble(show){ scrambled.classList.toggle('show', !!show); }
+
+    function renderWord(text){
+      setScramble(false);
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (text||'').toUpperCase()) addChar(ofLayer, ch);
+    }
+    function renderCard(value, suit){
+      setScramble(false);
+      clear(wordLayer); clear(ofLayer); clear(suitLayer);
+      for (const ch of (value||'').toUpperCase()) addChar(wordLayer, ch);
+      for (const ch of 'OF') addChar(ofLayer, ch, false); // keep OF straight
+      for (const ch of (suit||'').toUpperCase()) addChar(suitLayer, ch);
+    }
+
+    // Play glitch on top; perform the swap under cover after 1000ms
+    let glitchBusy = false;
+    function glitchThen(cb){
+      if (!glitch || glitch.style.display==='none' || !glitch.src){ cb(); return; }
+      if (glitchBusy){ cb(); return; }
+      glitchBusy = true;
+      glitch.currentTime = 0;
+      glitch.style.display = 'block';
+      glitch.play().catch(()=>{});
+      const finish = () => { glitch.pause(); glitch.style.display='none'; glitchBusy=false; };
+      glitch.onended = finish;
+
+      setTimeout(() => { cb(); }, 1000); // delay the reveal swap under the glitch
+    }
+
+    let initialized = false;
+    let lastSeq = 0;
+
+    onValue(ref(db, 'haunt'), (snap) => {
+      const v = snap.val();
+      if (!v) return;
+
+      if (!initialized){
+        initialized = true;
+        lastSeq = Number(v.seq || 0);
+        setScramble(true);
+        return;
+      }
+
+      const seq = Number(v.seq || 0);
+      if (seq <= lastSeq) return;
+      lastSeq = seq;
+
+      if (v.mode === 'WORD'){
+        glitchThen(() => renderWord(v.word || ''));
+      } else if (v.mode === 'CARD'){
+        glitchThen(() => renderCard(v.value || '', v.suit || ''));
+      }
+    });
+
     // Show jumble again on tap (rehearsal)
     document.body.addEventListener('click', () => setScramble(true));
 
