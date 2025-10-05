@@ -57,7 +57,7 @@
       img.className = 'magnet';
       img.draggable = false;
       if (wobble){
-        const rot = (Math.random()*2 - 1.0);
+        const rot = (Math.random()*4 - 2.0);
         const jitter = (Math.random()*1.5 - 0.75);
         img.style.transform = `rotate(${rot}deg) translateY(${jitter}px)`;
       }
